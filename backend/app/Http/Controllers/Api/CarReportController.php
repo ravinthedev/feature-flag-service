@@ -2,101 +2,88 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Domain\Reports\CarReportRepositoryInterface;
+use App\DTOs\CarReports\CreateCarReportDTO;
+use App\DTOs\CarReports\UpdateCarReportDTO;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CarReports\CreateCarReportRequest;
+use App\Http\Requests\CarReports\UpdateCarReportRequest;
+use App\Http\Resources\CarReportResource;
+use App\Models\CarReport;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class CarReportController extends Controller
 {
-    public function __construct(
-        private CarReportRepositoryInterface $repository
-    ) {}
-
     public function index(): JsonResponse
     {
-        $reports = $this->repository->findAll();
+        $reports = CarReport::latest()->get();
         
-        return response()->json([
-            'data' => array_map(fn($report) => $report->toArray(), $reports)
-        ]);
+        return CarReportResource::collection($reports)->response();
     }
 
     public function show(int $id): JsonResponse
     {
-        $report = $this->repository->findById($id);
+        $report = CarReport::findOrFail($id);
         
-        if (!$report) {
-            return response()->json(['error' => 'Car report not found'], 404);
-        }
-
-        return response()->json(['data' => $report->toArray()]);
+        return (new CarReportResource($report))->response();
     }
 
     public function byStatus(string $status): JsonResponse
     {
-        $reports = $this->repository->findByStatus($status);
+        $reports = CarReport::byStatus($status)->latest()->get();
         
-        return response()->json([
-            'data' => array_map(fn($report) => $report->toArray(), $reports)
-        ]);
+        return CarReportResource::collection($reports)->response();
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(CreateCarReportRequest $request): JsonResponse
     {
-        $request->validate([
-            'car_model' => 'required|string|max:255',
-            'description' => 'required|string',
-            'damage_type' => 'required|in:minor,moderate,severe,total_loss',
-            'photo_url' => 'nullable|url',
-        ]);
+        $validated = $request->validated();
+        
+        if ($request->hasFile('photo')) {
+            $path = $request->file('photo')->store('car-reports', 'public');
+            $validated['photo_url'] = $path;
+        }
+        
+        unset($validated['photo']);
+        
+        $dto = CreateCarReportDTO::fromRequest($validated);
+        $report = CarReport::create($dto->toArray());
 
-        $report = new \App\Domain\Reports\CarReport(
-            make: explode(' ', $request->car_model)[0] ?? 'Unknown',
-            model: $request->car_model,
-            year: 2020, // TODO: extract year from car_model properly
-            condition: \App\Domain\Reports\CarCondition::from($request->damage_type),
-            description: $request->description
-        );
-
-        $savedReport = $this->repository->save($report);
-
-        return response()->json(['data' => $savedReport->toArray()], 201);
+        return (new CarReportResource($report))->response()->setStatusCode(201);
     }
 
-    public function update(Request $request, int $id): JsonResponse
+    public function update(UpdateCarReportRequest $request, int $id): JsonResponse
     {
-        $report = $this->repository->findById($id);
+        $report = CarReport::findOrFail($id);
+        $validated = $request->validated();
         
-        if (!$report) {
-            return response()->json(['error' => 'Car report not found'], 404);
+        if ($request->hasFile('photo')) {
+            if ($report->photo_url) {
+                Storage::disk('public')->delete($report->photo_url);
+            }
+            $path = $request->file('photo')->store('car-reports', 'public');
+            $validated['photo_url'] = $path;
         }
+        
+        unset($validated['photo']);
+        
+        $dto = UpdateCarReportDTO::fromRequest($validated);
+        $report->update($dto->toArray());
 
-        $request->validate([
-            'description' => 'sometimes|string',
-            'damage_type' => 'sometimes|in:minor,moderate,severe,total_loss',
-        ]);
-
-        if ($request->has('description')) {
-            $report = $report->withDescription($request->description);
-        }
-        if ($request->has('damage_type')) {
-            $report = $report->withCondition(\App\Domain\Reports\CarCondition::from($request->damage_type));
-        }
-
-        $updatedReport = $this->repository->save($report);
-
-        return response()->json(['data' => $updatedReport->toArray()]);
+        return (new CarReportResource($report->fresh()))->response();
     }
 
     public function destroy(int $id): JsonResponse
     {
-        $deleted = $this->repository->delete($id);
+        $report = CarReport::findOrFail($id);
         
-        if (!$deleted) {
-            return response()->json(['error' => 'Car report not found'], 404);
+        if ($report->photo_url) {
+            Storage::disk('public')->delete($report->photo_url);
         }
+        
+        $report->delete();
 
-        return response()->json(['message' => 'Car report deleted successfully']);
+        return response()->json(['message' => 'Car report deleted successfully'], 200);
     }
 }

@@ -1,36 +1,133 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Feature Flag Service - Frontend
+
+A Next.js 15 frontend application for the Feature Flag Service with admin panel and client interface.
+
+## Features
+
+### Admin Interface
+- **Feature Flag Management**: Create, edit, delete, and view feature flags
+- **Analytics Dashboard**: View feature flag usage statistics and decision logs
+- **Role-based Access**: Admin-only access to management features
+
+### Client Interface
+- **Car Damage Reports**: Submit, view, edit, and manage car damage reports
+- **Feature Flag Integration**: Components conditionally rendered based on feature flags
+- **Advanced Search**: Premium search functionality (feature flagged)
+- **Mobile App Integration**: Mobile app download prompts (feature flagged)
+
+### Feature Flag Components
+1. **Photo Upload**: File upload functionality for car reports
+2. **AI Damage Assessment**: AI-powered damage analysis and cost estimation
+3. **Premium Analytics**: Advanced reporting and analytics features
+4. **Beta Dashboard**: Enhanced UI with latest features
+5. **Mobile App Integration**: Mobile app download and QR code features
+
+## Technology Stack
+
+- **Next.js 15** with App Router
+- **TypeScript** for type safety
+- **Tailwind CSS** for styling
+- **React Hook Form** with Zod validation
+- **Axios** for API communication
+- **Lucide React** for icons
 
 ## Getting Started
 
-First, run the development server:
-
+1. Install dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Set up environment variables:
+```bash
+# Create .env.local
+NEXT_PUBLIC_API_URL=http://localhost:8000/api
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Run the development server:
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Learn More
+## Authentication
 
-To learn more about Next.js, take a look at the following resources:
+### Demo Credentials
+- **Admin**: admin@example.com / password
+- **User**: user@example.com / password
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Role-based Access
+- **Admin users** can access `/admin` for feature flag management
+- **Regular users** can access `/reports` for car damage reports
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Feature Flag Strategy
 
-## Deploy on Vercel
+### Handling Disabled Features
+The application includes robust handling for when feature flags are disabled:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. **Graceful Degradation**: Components show fallback UI when disabled
+2. **Real-time Updates**: Feature flags are checked on each interaction
+3. **Error Boundaries**: Proper error handling for flag-related failures
+4. **User Feedback**: Clear messaging when features become unavailable
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Caching Strategy
+- Feature flag states are cached client-side for performance
+- Automatic cache invalidation on flag changes
+- Fallback to default values when cache is unavailable
+
+## API Integration
+
+The frontend integrates with the Laravel backend through:
+
+- **Authentication API**: Login/logout and user management
+- **Feature Flag API**: Flag evaluation and management
+- **Car Reports API**: CRUD operations for damage reports
+- **Analytics API**: Usage statistics and decision logging
+
+## Component Architecture
+
+### Core Components
+- `FeatureFlagGuard`: Handles feature flag state changes gracefully
+- `useFeatureFlag`: React hook for feature flag evaluation
+- `Layout`: Main application layout with navigation
+- `CarReportForm`: Form for creating/editing car reports
+- `FeatureFlagForm`: Admin form for managing feature flags
+
+### Feature Flag Components
+- `AdvancedSearch`: Premium search functionality
+- `MobileAppIntegration`: Mobile app download features
+- `CarReportDetail`: Enhanced report details with AI features
+
+## Development
+
+### Available Scripts
+- `npm run dev`: Start development server
+- `npm run build`: Build for production
+- `npm run start`: Start production server
+- `npm run lint`: Run ESLint
+
+### Project Structure
+```
+src/
+├── app/                 # Next.js app router pages
+├── components/          # React components
+├── hooks/              # Custom React hooks
+├── lib/                # API and utility functions
+├── types/              # TypeScript type definitions
+└── config/             # Configuration files
+```
+
+## Production Deployment
+
+1. Build the application:
+```bash
+npm run build
+```
+
+2. Start the production server:
+```bash
+npm run start
+```
+
+The application will be available at `http://localhost:3000`.

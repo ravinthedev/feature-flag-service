@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Reports;
 
+use InvalidArgumentException;
+
 enum CarCondition: string
 {
     case EXCELLENT = 'excellent';
@@ -53,7 +55,7 @@ enum CarCondition: string
             'fair' => self::FAIR,
             'poor' => self::POOR,
             'salvage' => self::SALVAGE,
-            default => throw new \InvalidArgumentException("Invalid car condition: {$condition}"),
+            default => throw new InvalidArgumentException("Invalid car condition: {$condition}"),
         };
     }
 }

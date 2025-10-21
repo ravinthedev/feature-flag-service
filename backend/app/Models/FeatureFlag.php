@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Domain\FeatureFlags\FeatureFlag as FeatureFlagEntity;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class FeatureFlag extends Model
 {
@@ -19,12 +18,15 @@ class FeatureFlag extends Model
         'ends_at',
     ];
 
-    protected $casts = [
-        'is_enabled' => 'boolean',
-        'rollout_value' => 'array',
-        'starts_at' => 'datetime',
-        'ends_at' => 'datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'is_enabled' => 'boolean',
+            'rollout_value' => 'array',
+            'starts_at' => 'datetime',
+            'ends_at' => 'datetime',
+        ];
+    }
 
     public function toDomainEntity(): FeatureFlagEntity
     {
@@ -48,7 +50,7 @@ class FeatureFlag extends Model
             'name' => $entity->name(),
             'description' => $entity->description(),
             'is_enabled' => $entity->isEnabled(),
-            'rollout_type' => 'boolean', // Default for now
+            'rollout_type' => 'boolean',
             'rollout_value' => $entity->conditions(),
         ];
     }

@@ -6,7 +6,7 @@ use App\Domain\FeatureFlags\FeatureFlag as FeatureFlagEntity;
 use App\Domain\FeatureFlags\FeatureFlagRepositoryInterface;
 use App\Models\FeatureFlag;
 
-class FeatureFlagRepository implements FeatureFlagRepositoryInterface
+final class FeatureFlagRepository implements FeatureFlagRepositoryInterface
 {
     public function findByKey(string $key): ?FeatureFlagEntity
     {

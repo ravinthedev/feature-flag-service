@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\FeatureFlags;
 
+use DateTimeImmutable;
+
 class FeatureFlagEvaluator
 {
     public function __construct(
@@ -37,7 +39,6 @@ class FeatureFlagEvaluator
             );
         }
 
-        // Check scheduled rollout first
         $scheduledResult = $this->evaluateScheduled($featureFlag);
         if (!$scheduledResult['enabled']) {
             return new EvaluationResult(
@@ -48,7 +49,6 @@ class FeatureFlagEvaluator
             );
         }
 
-        // Then evaluate rollout type
         $rolloutResult = $this->evaluateRollout($featureFlag, $context);
 
         return new EvaluationResult(
@@ -61,7 +61,7 @@ class FeatureFlagEvaluator
 
     private function evaluateScheduled(FeatureFlag $featureFlag): array
     {
-        $now = new \DateTimeImmutable();
+        $now = new DateTimeImmutable();
         
         if ($featureFlag->startsAt() && $now < $featureFlag->startsAt()) {
             return ['enabled' => false, 'reason' => 'Feature flag is scheduled to start later'];
@@ -170,7 +170,6 @@ class FeatureFlagEvaluator
             return false;
         }
 
-        // Use user ID or a stable identifier for consistent percentage evaluation
         $identifier = $context['user_id'] ?? $context['session_id'] ?? $contextValue ?? '';
         $hash = crc32((string) $identifier);
         $bucket = abs($hash) % 100;

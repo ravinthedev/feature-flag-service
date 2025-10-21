@@ -3,11 +3,23 @@
 namespace App\Http\Controllers\Api;
 
 use App\Domain\FeatureFlags\EvaluateFeatureFlagsService;
+use App\Domain\FeatureFlags\FeatureFlag;
 use App\Domain\FeatureFlags\FeatureFlagDecisionLogger;
 use App\Domain\FeatureFlags\FeatureFlagRepositoryInterface;
+use App\DTOs\FeatureFlags\CreateFeatureFlagDTO;
+use App\DTOs\FeatureFlags\UpdateFeatureFlagDTO;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\FeatureFlags\AnalyticsRequest;
+use App\Http\Requests\FeatureFlags\CreateFeatureFlagRequest;
+use App\Http\Requests\FeatureFlags\EvaluateFeatureFlagRequest;
+use App\Http\Requests\FeatureFlags\UpdateFeatureFlagRequest;
+use App\Http\Requests\FeatureFlags\UserHistoryRequest;
+use App\Http\Resources\FeatureFlagResource;
+use App\Models\FeatureFlag as FeatureFlagModel;
+use DateTimeImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class FeatureFlagController extends Controller
 {
@@ -19,35 +31,29 @@ class FeatureFlagController extends Controller
 
     public function index(): JsonResponse
     {
-        $flags = $this->repository->findAll();
+        $flags = FeatureFlagModel::all();
         
-        return response()->json([
-            'data' => array_map(fn($flag) => $flag->toArray(), $flags)
-        ]);
+        return FeatureFlagResource::collection($flags)->response();
     }
 
     public function show(string $key): JsonResponse
     {
-        $flag = $this->repository->findByKey($key);
+        $flag = FeatureFlagModel::where('key', $key)->firstOrFail();
         
-        if (!$flag) {
-            return response()->json(['error' => 'Feature flag not found'], 404);
-        }
-
-        return response()->json(['data' => $flag->toArray()]);
+        return (new FeatureFlagResource($flag))->response();
     }
 
-    public function evaluate(string $key, Request $request): JsonResponse
+    public function evaluate(string $key, EvaluateFeatureFlagRequest $request): JsonResponse
     {
-        $context = $request->get('context', []);
+        $context = $request->validated()['context'] ?? [];
         $result = $this->evaluationService->evaluateFlag($key, $context);
         
         return response()->json(['data' => $result->toArray()]);
     }
 
-    public function check(string $key, Request $request): JsonResponse
+    public function check(string $key, EvaluateFeatureFlagRequest $request): JsonResponse
     {
-        $context = $request->get('context', []);
+        $context = $request->validated()['context'] ?? [];
         $isEnabled = $this->evaluationService->isEnabled($key, $context);
         
         return response()->json([
@@ -56,79 +62,36 @@ class FeatureFlagController extends Controller
         ]);
     }
 
-    public function getActiveFlags(Request $request): JsonResponse
-    {
-        $context = $request->get('context', []);
-        $activeFlags = $this->evaluationService->getActiveFlags($context);
-        
-        return response()->json(['data' => $activeFlags]);
-    }
 
-    public function store(Request $request): JsonResponse
+    public function store(CreateFeatureFlagRequest $request): JsonResponse
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'key' => 'required|string|max:255|unique:feature_flags,key',
-            'description' => 'nullable|string',
-            'is_enabled' => 'boolean',
-            'rollout_value' => 'nullable|array',
-            'starts_at' => 'nullable|date',
-            'ends_at' => 'nullable|date|after:starts_at',
-        ]);
+        $dto = CreateFeatureFlagDTO::fromRequest($request->validated());
 
-        $flag = new \App\Domain\FeatureFlags\FeatureFlag(
-            key: $request->key,
-            name: $request->name,
-            description: $request->description,
-            isEnabled: $request->boolean('is_enabled', false),
-            conditions: $request->rollout_value ?? [],
-            startsAt: $request->starts_at ? new \DateTimeImmutable($request->starts_at) : null,
-            endsAt: $request->ends_at ? new \DateTimeImmutable($request->ends_at) : null
+        $flag = new FeatureFlag(
+            key: $dto->key,
+            name: $dto->name,
+            description: $dto->description,
+            isEnabled: $dto->isEnabled,
+            conditions: $dto->rolloutValue ?? [],
+            startsAt: $dto->startsAt ? new DateTimeImmutable($dto->startsAt) : null,
+            endsAt: $dto->endsAt ? new DateTimeImmutable($dto->endsAt) : null
         );
 
         $savedFlag = $this->repository->save($flag);
+        $model = FeatureFlagModel::where('key', $savedFlag->key())->first();
 
-        return response()->json(['data' => $savedFlag->toArray()], 201);
+        return (new FeatureFlagResource($model))->response()->setStatusCode(201);
     }
 
-    public function update(Request $request, string $key): JsonResponse
+    public function update(UpdateFeatureFlagRequest $request, string $key): JsonResponse
     {
-        $flag = $this->repository->findByKey($key);
+        $flag = FeatureFlagModel::where('key', $key)->firstOrFail();
+        $dto = UpdateFeatureFlagDTO::fromRequest($request->validated());
         
-        if (!$flag) {
-            return response()->json(['error' => 'Feature flag not found'], 404);
-        }
+        $flag->update($dto->toArray());
+        $this->invalidateFlagCache($key);
 
-        $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'description' => 'nullable|string',
-            'is_enabled' => 'sometimes|boolean',
-            'rollout_value' => 'nullable|array',
-            'starts_at' => 'nullable|date',
-            'ends_at' => 'nullable|date|after:starts_at',
-        ]);
-
-        if ($request->has('name')) {
-            $flag = $flag->withName($request->name);
-        }
-        if ($request->has('description')) {
-            $flag = $flag->withDescription($request->description);
-        }
-        if ($request->has('is_enabled')) {
-            $flag = $request->boolean('is_enabled') ? $flag->enable() : $flag->disable();
-        }
-        if ($request->has('rollout_value')) {
-            $flag = $flag->withConditions($request->rollout_value ?? []);
-        }
-        if ($request->has('starts_at') || $request->has('ends_at')) {
-            $startsAt = $request->starts_at ? new \DateTimeImmutable($request->starts_at) : null;
-            $endsAt = $request->ends_at ? new \DateTimeImmutable($request->ends_at) : null;
-            $flag = $flag->withSchedule($startsAt, $endsAt);
-        }
-
-        $updatedFlag = $this->repository->save($flag);
-
-        return response()->json(['data' => $updatedFlag->toArray()]);
+        return (new FeatureFlagResource($flag->fresh()))->response();
     }
 
     public function destroy(string $key): JsonResponse
@@ -139,28 +102,38 @@ class FeatureFlagController extends Controller
             return response()->json(['error' => 'Feature flag not found'], 404);
         }
 
-        return response()->json(['message' => 'Feature flag deleted successfully']);
+        return response()->json(['message' => 'Feature flag deleted successfully'], 200);
     }
 
-    public function analytics(string $key, Request $request): JsonResponse
+    public function analytics(string $key, AnalyticsRequest $request): JsonResponse
     {
-        $hours = $request->get('hours', 24);
+        $hours = $request->integer('hours', 24);
         $stats = $this->logger->getFlagStats($key, $hours);
         
         return response()->json(['data' => $stats]);
     }
 
-    public function userHistory(Request $request): JsonResponse
+    public function userHistory(UserHistoryRequest $request): JsonResponse
     {
-        $userId = $request->get('user_id');
-        $limit = $request->get('limit', 50);
-        
-        if (!$userId) {
-            return response()->json(['error' => 'user_id is required'], 400);
-        }
-        
+        $userId = $request->integer('user_id');
+        $limit = $request->integer('limit', 50);
         $history = $this->logger->getUserFlagHistory($userId, $limit);
         
         return response()->json(['data' => $history]);
+    }
+
+    private function invalidateFlagCache(string $key): void
+    {
+        $patterns = [
+            "flag:{$key}:*",
+            "active_flags:*"
+        ];
+
+        foreach ($patterns as $pattern) {
+            $keys = Redis::keys($pattern);
+            if (!empty($keys)) {
+                Redis::del($keys);
+            }
+        }
     }
 }

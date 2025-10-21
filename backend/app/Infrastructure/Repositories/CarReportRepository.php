@@ -6,7 +6,7 @@ use App\Domain\Reports\CarReport as CarReportEntity;
 use App\Domain\Reports\CarReportRepositoryInterface;
 use App\Models\CarReport;
 
-class CarReportRepository implements CarReportRepositoryInterface
+final class CarReportRepository implements CarReportRepositoryInterface
 {
     public function findById(int $id): ?CarReportEntity
     {

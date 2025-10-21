@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\CarReport;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,78 +16,50 @@ class CarReportSeeder extends Seeder
         $carReports = [
             [
                 'car_model' => 'Toyota Camry 2020',
-                'description' => 'Front bumper damage from parking lot incident',
+                'description' => 'Small dent on front bumper from parking. Paint is scratched but no structural damage.',
                 'damage_type' => 'minor',
-                'photo_url' => 'https://example.com/photos/camry-front-damage.jpg',
+                'photo_url' => null,
                 'status' => 'pending',
             ],
             [
                 'car_model' => 'Honda Civic 2019',
-                'description' => 'Side door dent from shopping cart collision',
+                'description' => 'Door panel has a noticeable dent. Needs body work and repainting.',
                 'damage_type' => 'minor',
-                'photo_url' => 'https://example.com/photos/civic-side-dent.jpg',
+                'photo_url' => null,
                 'status' => 'in_progress',
             ],
             [
                 'car_model' => 'Ford F-150 2021',
-                'description' => 'Rear-end collision with significant tailgate damage',
+                'description' => 'Rear bumper bent after being hit. Taillight also cracked and needs replacement.',
                 'damage_type' => 'moderate',
-                'photo_url' => 'https://example.com/photos/f150-rear-damage.jpg',
+                'photo_url' => null,
                 'status' => 'completed',
             ],
             [
                 'car_model' => 'BMW X5 2018',
-                'description' => 'Multiple panel damage from hail storm',
+                'description' => 'Hood and roof have multiple dents from hail. Windows intact but paintwork damaged.',
                 'damage_type' => 'severe',
-                'photo_url' => 'https://example.com/photos/bmx-x5-hail-damage.jpg',
+                'photo_url' => null,
                 'status' => 'pending',
             ],
             [
                 'car_model' => 'Tesla Model 3 2022',
-                'description' => 'Minor scratch on driver side door',
+                'description' => 'Keyed on driver side. Long scratch down the door panel.',
                 'damage_type' => 'minor',
-                'photo_url' => 'https://example.com/photos/tesla-scratch.jpg',
+                'photo_url' => null,
                 'status' => 'completed',
             ],
             [
-                'car_model' => 'Chevrolet Malibu 2017',
-                'description' => 'Front-end collision with extensive damage',
-                'damage_type' => 'severe',
-                'photo_url' => 'https://example.com/photos/malibu-front-collision.jpg',
-                'status' => 'in_progress',
-            ],
-            [
-                'car_model' => 'Nissan Altima 2020',
-                'description' => 'Windshield crack from road debris',
+                'car_model' => 'Mazda CX-5 2021',
+                'description' => 'Windshield has a crack spreading from the lower left corner. Happened after a stone hit.',
                 'damage_type' => 'minor',
-                'photo_url' => 'https://example.com/photos/altima-windshield.jpg',
+                'photo_url' => null,
                 'status' => 'pending',
-            ],
-            [
-                'car_model' => 'Jeep Wrangler 2019',
-                'description' => 'Rollover accident with roof and side damage',
-                'damage_type' => 'total_loss',
-                'photo_url' => 'https://example.com/photos/wrangler-rollover.jpg',
-                'status' => 'rejected',
-            ],
-            [
-                'car_model' => 'Subaru Outback 2021',
-                'description' => 'Rear bumper damage from backing into pole',
-                'damage_type' => 'moderate',
-                'photo_url' => 'https://example.com/photos/outback-rear-damage.jpg',
-                'status' => 'completed',
-            ],
-            [
-                'car_model' => 'Audi A4 2020',
-                'description' => 'Side mirror replacement needed after parking incident',
-                'damage_type' => 'minor',
-                'photo_url' => 'https://example.com/photos/audi-mirror.jpg',
-                'status' => 'in_progress',
             ],
         ];
 
         foreach ($carReports as $report) {
-            \App\Models\CarReport::create($report);
+            CarReport::create($report);
         }
     }
 }

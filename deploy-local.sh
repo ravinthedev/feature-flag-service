@@ -1,22 +1,36 @@
 #!/bin/bash
 
-echo "Setting up Feature Flag Service locally..."
+set -e
 
-# Copy environment files
-echo "Copying environment files..."
+echo "🚀 Setting up Feature Flag Service..."
+echo ""
+
+echo "📄 Copying environment files..."
 cp environments/local/backend.env backend/.env
 cp environments/local/frontend.env frontend/.env.local
 
-echo "Starting Docker services..."
+echo "🐳 Starting Docker services..."
 cd environments/local
 docker compose --env-file docker.env up -d
 
+echo "⏳ Waiting for services to be ready..."
+sleep 10
+
+echo "🔧 Running backend setup..."
+docker exec feature-flag-backend php artisan key:generate
+docker exec feature-flag-backend php artisan migrate --force
+docker exec feature-flag-backend php artisan db:seed --force
+docker exec feature-flag-backend php artisan storage:link
+
 echo ""
-echo "Setup complete!"
+echo "✅ Setup complete!"
 echo ""
-echo "Access your applications:"
-echo "   Frontend: http://localhost:3000"
-echo "   Backend:  http://localhost:8000"
+echo "Access the application:"
+echo "  Frontend: http://localhost:3000"
+echo "  Backend:  http://localhost:8000/api"
 echo ""
-echo "To stop services, run:"
-echo "   cd environments/local && docker compose down"
+echo "Login credentials:"
+echo "  Admin: admin@example.com / password"
+echo "  User:  user@example.com / password"
+echo ""
+echo "To stop: cd environments/local && docker compose down"

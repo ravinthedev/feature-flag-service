@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Log;
 
 class EvaluateFeatureFlagsService
 {
-    private const CACHE_TTL = 60; // TODO: make this configurable
+    private const CACHE_TTL = 60;
 
     public function __construct(
         private FeatureFlagRepositoryInterface $repository,
@@ -23,7 +23,6 @@ class EvaluateFeatureFlagsService
             return $this->evaluator->evaluate($key, $context);
         });
 
-        // Log feature flag decision for monitoring
         $this->logger->logDecision(
             flagKey: $key,
             enabled: $result->isEnabled(),

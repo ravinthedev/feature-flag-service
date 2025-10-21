@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\FeatureFlag;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -14,42 +15,42 @@ class FeatureFlagSeeder extends Seeder
     {
         $featureFlags = [
             [
-                'name' => 'Upload Photos',
+                'name' => 'Photo Upload',
                 'key' => 'upload_photos',
-                'description' => 'Allow users to upload photos for car damage reports',
+                'description' => 'Upload photos with damage reports',
                 'is_enabled' => true,
                 'rollout_type' => 'boolean',
                 'rollout_value' => null,
-                'starts_at' => now(),
+                'starts_at' => null,
                 'ends_at' => null,
             ],
             [
-                'name' => 'Premium Analytics',
+                'name' => 'Advanced Search',
                 'key' => 'premium_analytics',
-                'description' => 'Advanced analytics dashboard for premium users',
-                'is_enabled' => false,
+                'description' => 'Filter reports by type, date, and status',
+                'is_enabled' => true,
                 'rollout_type' => 'percentage',
-                'rollout_value' => ['percentage' => 25],
-                'starts_at' => now()->addDays(7),
+                'rollout_value' => ['percentage' => 50],
+                'starts_at' => null,
                 'ends_at' => null,
             ],
             [
                 'name' => 'Beta Dashboard',
                 'key' => 'beta_dashboard',
-                'description' => 'New dashboard interface for beta testing',
+                'description' => 'New dashboard for testing',
                 'is_enabled' => true,
                 'rollout_type' => 'user_list',
                 'rollout_value' => [
-                    'users' => ['admin@example.com', 'beta@example.com'],
-                    'roles' => ['admin', 'beta_tester']
+                    'users' => ['admin@example.com'],
+                    'roles' => ['admin']
                 ],
-                'starts_at' => now()->subDays(5),
-                'ends_at' => now()->addDays(30),
+                'starts_at' => null,
+                'ends_at' => null,
             ],
             [
-                'name' => 'AI Damage Assessment',
+                'name' => 'AI Assessment',
                 'key' => 'ai_damage_assessment',
-                'description' => 'Automatic damage assessment using AI',
+                'description' => 'Auto-detect damage severity using AI',
                 'is_enabled' => false,
                 'rollout_type' => 'boolean',
                 'rollout_value' => null,
@@ -57,19 +58,19 @@ class FeatureFlagSeeder extends Seeder
                 'ends_at' => null,
             ],
             [
-                'name' => 'Mobile App Integration',
+                'name' => 'Mobile App',
                 'key' => 'mobile_app_integration',
-                'description' => 'Integration with mobile application',
+                'description' => 'Submit reports via mobile app',
                 'is_enabled' => true,
                 'rollout_type' => 'percentage',
                 'rollout_value' => ['percentage' => 75],
-                'starts_at' => now()->subDays(10),
+                'starts_at' => null,
                 'ends_at' => null,
             ],
         ];
 
         foreach ($featureFlags as $flag) {
-            \App\Models\FeatureFlag::updateOrCreate(
+            FeatureFlag::updateOrCreate(
                 ['key' => $flag['key']],
                 $flag
             );
