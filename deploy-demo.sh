@@ -2,12 +2,11 @@
 
 set -e
 
-echo "Setting up Feature Flag Service..."
-echo ""
+echo "Setting up Feature Flag Service for Production..."
 
 echo "Copying environment files..."
-cp environments/local/backend.env backend/.env
-cp environments/local/frontend.env frontend/.env.local
+cp environments/production/backend.env backend/.env
+cp environments/production/frontend.env frontend/.env.local
 
 echo "Starting Docker services..."
 cd environments/local
@@ -18,7 +17,6 @@ sleep 10
 
 echo "Running backend setup..."
 
-# Check if vendor directory exists, if not install dependencies
 if ! docker exec feature-flag-backend test -d /var/www/html/vendor; then
   echo "Installing PHP dependencies..."
   docker exec feature-flag-backend composer install --no-dev --optimize-autoloader
@@ -46,12 +44,12 @@ else
 fi
 
 echo ""
-echo "Setup complete!"
+echo "Production setup complete!"
 echo ""
 echo "Access the application:"
-echo "  App: http://localhost (port 80)"
-echo "  Direct Frontend: http://localhost:3000"
-echo "  Direct Backend: http://localhost:8000/api"
+echo "  App: http://44.249.12.142"
+echo "  Direct Frontend: http://44.249.12.142:3000"
+echo "  Direct Backend: http://44.249.12.142:8000/api"
 echo ""
 echo "Login credentials:"
 echo "  Admin: admin@example.com / password"
