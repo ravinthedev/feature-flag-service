@@ -2,13 +2,9 @@
 
 A car damage reporting system with feature flag management. Built with Laravel and Next.js.
 
-## What is this?
+**Live Demo:** [http://44.249.12.142:3000](http://44.249.12.142:3000)
 
-This is a demo application showing how to implement feature flags in a real-world scenario. Users can submit car damage reports, and admins can toggle features on/off without deploying new code.
-
-**Live Demo:** [http://44.249.12.142](http://44.249.12.142)
-
-*Currently deployed on AWS EC2 with Docker. For actual production usage, recommend AWS ECS or similar container orchestration.*
+This is a demo application showing how to implement feature flags. Users can submit car damage reports, and admins can toggle features on/off without deploying new code.
 
 ## Quick Start
 
@@ -173,8 +169,8 @@ GET    /api/admin/feature-flags/{key}/analytics  # Usage stats
 
 ## Testing the System
 
-**Try the live demo first:**
-- Visit: [http://44.249.12.142](http://44.249.12.142)
+**Demo Link:**
+- Visit: [http://44.249.12.142:3000](http://44.249.12.142:3000)
 - Login with `admin@example.com` / `password` or `user@example.com` / `password`
 - Test feature flags and car reports
 
