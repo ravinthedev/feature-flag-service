@@ -10,7 +10,6 @@ coverage
 .parcel-cache
 .DS_Store
 *.log
-vendor
 storage/logs/*
 storage/framework/cache/*
 storage/framework/sessions/*

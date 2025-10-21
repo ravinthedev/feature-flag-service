@@ -5,6 +5,7 @@ import { CarReport } from '@/types';
 import { carReportService } from '@/lib/carReports';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { Edit, Eye, Calendar, Car } from 'lucide-react';
+import { FEATURE_FLAGS } from '@/lib/constants';
 
 interface CarReportListProps {
   onEdit: (report: CarReport) => void;
@@ -16,7 +17,7 @@ export default function CarReportList({ onEdit, onView }: CarReportListProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { enabled: premiumAnalyticsEnabled } = useFeatureFlag('premium_analytics');
+  const { enabled: premiumAnalyticsEnabled } = useFeatureFlag(FEATURE_FLAGS.PREMIUM_ANALYTICS);
 
   useEffect(() => {
     loadReports();

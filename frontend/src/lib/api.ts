@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 import { API_CONFIG } from '@/config/api';
+import { HTTP_STATUS, ROUTES } from './constants';
 
 const API_BASE_URL = API_CONFIG.BASE_URL;
 
@@ -22,9 +23,9 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === HTTP_STATUS.UNAUTHORIZED) {
       localStorage.removeItem('auth_token');
-      window.location.href = '/login';
+      window.location.href = ROUTES.LOGIN;
     }
     return Promise.reject(error);
   }

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { carReportService } from '@/lib/carReports';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { Camera } from 'lucide-react';
+import { FEATURE_FLAGS } from '@/lib/constants';
 
 interface CarReportFormData {
   car_model: string;
@@ -22,7 +23,7 @@ export default function CarReportForm({ onSuccess, onCancel }: CarReportFormProp
   const [error, setError] = useState<string | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
-  const { enabled: uploadPhotosEnabled } = useFeatureFlag('upload_photos');
+  const { enabled: uploadPhotosEnabled } = useFeatureFlag(FEATURE_FLAGS.UPLOAD_PHOTOS);
 
   const [formData, setFormData] = useState<CarReportFormData>({
     car_model: '',

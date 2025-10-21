@@ -17,6 +17,13 @@ echo "Waiting for services to be ready..."
 sleep 10
 
 echo "Running backend setup..."
+
+# Check if vendor directory exists, if not install dependencies
+if ! docker exec feature-flag-backend test -d /var/www/html/vendor; then
+  echo "Installing PHP dependencies..."
+  docker exec feature-flag-backend composer install --no-dev --optimize-autoloader
+fi
+
 docker exec feature-flag-backend php artisan key:generate
 
 sleep 5

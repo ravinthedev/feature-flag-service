@@ -6,8 +6,17 @@ A car damage reporting system with feature flag management. Built with Laravel a
 
 This is a demo application showing how to implement feature flags in a real-world scenario. Users can submit car damage reports, and admins can toggle features on/off without deploying new code.
 
+**Live Demo:** [https://54.190.56.245:3000](https://54.190.56.245:3000)
+
+*Currently deployed on AWS EC2 with Docker. For actual production usage, recommend AWS ECS or similar container orchestration.*
 
 ## Quick Start
+
+**Clone the repository:**
+```bash
+git clone https://github.com/ravinthedev/feature-flag-service.git
+cd feature-flag-service
+```
 
 **One-click setup:**
 ```bash
@@ -162,6 +171,13 @@ GET    /api/admin/feature-flags/{key}/analytics  # Usage stats
 ```
 
 ## Testing the System
+
+**Try the live demo first:**
+- Visit: [https://54.190.56.245:3000](https://54.190.56.245:3000)
+- Login with `admin@example.com` / `password` or `user@example.com` / `password`
+- Test feature flags and car reports
+
+**Or test locally:**
 
 **1. Login as admin:**
 - Go to http://localhost:3000/login

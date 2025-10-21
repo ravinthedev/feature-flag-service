@@ -3,6 +3,8 @@
 import { CarReport } from '@/types';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { X, Calendar, Car, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { strings } from '@/lib/strings';
+import { FEATURE_FLAGS } from '@/lib/constants';
 
 interface CarReportDetailProps {
   report: CarReport;
@@ -10,8 +12,8 @@ interface CarReportDetailProps {
 }
 
 export default function CarReportDetail({ report, onClose }: CarReportDetailProps) {
-  const { enabled: aiDamageAssessmentEnabled } = useFeatureFlag('ai_damage_assessment');
-  const { enabled: premiumAnalyticsEnabled } = useFeatureFlag('premium_analytics');
+  const { enabled: aiDamageAssessmentEnabled } = useFeatureFlag(FEATURE_FLAGS.AI_DAMAGE_ASSESSMENT);
+  const { enabled: premiumAnalyticsEnabled } = useFeatureFlag(FEATURE_FLAGS.PREMIUM_ANALYTICS);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -27,15 +29,15 @@ export default function CarReportDetail({ report, onClose }: CarReportDetailProp
   const getDamageSeverity = (damageType: string) => {
     switch (damageType) {
       case 'minor':
-        return { level: 'Low', color: 'text-green-600', bg: 'bg-green-50' };
+        return { level: strings.low, color: 'text-green-600', bg: 'bg-green-50' };
       case 'moderate':
-        return { level: 'Medium', color: 'text-yellow-600', bg: 'bg-yellow-50' };
+        return { level: strings.medium, color: 'text-yellow-600', bg: 'bg-yellow-50' };
       case 'severe':
-        return { level: 'High', color: 'text-orange-600', bg: 'bg-orange-50' };
+        return { level: strings.high, color: 'text-orange-600', bg: 'bg-orange-50' };
       case 'total_loss':
-        return { level: 'Critical', color: 'text-red-600', bg: 'bg-red-50' };
+        return { level: strings.critical, color: 'text-red-600', bg: 'bg-red-50' };
       default:
-        return { level: 'Unknown', color: 'text-gray-600', bg: 'bg-gray-50' };
+        return { level: strings.unknown, color: 'text-gray-600', bg: 'bg-gray-50' };
     }
   };
 
@@ -45,7 +47,7 @@ export default function CarReportDetail({ report, onClose }: CarReportDetailProp
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-medium text-gray-900">Car Report Details</h3>
+          <h3 className="text-lg font-medium text-gray-900">{strings.reportDetails}</h3>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
@@ -55,7 +57,6 @@ export default function CarReportDetail({ report, onClose }: CarReportDetailProp
         </div>
 
         <div className="space-y-6">
-          {/* Header Info */}
           <div className="flex items-center space-x-3">
             <Car className="h-8 w-8 text-blue-600" />
             <div>
@@ -67,22 +68,20 @@ export default function CarReportDetail({ report, onClose }: CarReportDetailProp
             </div>
           </div>
 
-          {/* Damage Assessment */}
           <div className={`p-4 rounded-lg ${damageInfo.bg}`}>
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="font-medium text-gray-900">Damage Assessment</h4>
+                <h4 className="font-medium text-gray-900">{strings.damageAssessment}</h4>
                 <p className={`text-sm font-medium ${damageInfo.color}`}>
-                  {damageInfo.level} Severity
+                  {damageInfo.level} {strings.severity}
                 </p>
               </div>
               <span className="text-sm text-gray-600 capitalize">
-                {report.damage_type?.replace('_', ' ') || 'Unknown'}
+                {report.damage_type?.replace('_', ' ') || strings.unknown}
               </span>
             </div>
           </div>
 
-          {/* AI Assessment (Feature Flag) */}
           {aiDamageAssessmentEnabled && (
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
               <div className="flex items-center">
@@ -92,30 +91,28 @@ export default function CarReportDetail({ report, onClose }: CarReportDetailProp
                   </div>
                 </div>
                 <div className="ml-3">
-                  <h3 className="text-sm font-medium text-blue-900">AI Damage Assessment</h3>
+                  <h3 className="text-sm font-medium text-blue-900">{strings.aiDamageAssessment}</h3>
                   <p className="text-sm text-blue-700">
-                    Estimated repair cost: $2,500 - $4,200
+                    {strings.estimatedCost}: $2,500 - $4,200
                   </p>
                   <p className="text-xs text-blue-600 mt-1">
-                    Confidence: 87% • Analysis completed 2 minutes ago
+                    {strings.confidence}: 87% • {strings.analysisCompleted} 2 minutes ago
                   </p>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Description */}
           <div>
-            <h4 className="font-medium text-gray-900 mb-2">Description</h4>
+            <h4 className="font-medium text-gray-900 mb-2">{strings.description}</h4>
             <p className="text-gray-700 bg-gray-50 p-3 rounded-lg">
               {report.description}
             </p>
           </div>
 
-          {/* Photo */}
           {report.photo_url && (
             <div>
-              <h4 className="font-medium text-gray-900 mb-2">Photo</h4>
+              <h4 className="font-medium text-gray-900 mb-2">{strings.photo}</h4>
               <div className="bg-gray-50 p-4 rounded-lg">
                 <img
                   src={report.photo_url}
@@ -126,41 +123,39 @@ export default function CarReportDetail({ report, onClose }: CarReportDetailProp
             </div>
           )}
 
-          {/* Premium Analytics (Feature Flag) */}
           {premiumAnalyticsEnabled && (
             <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4">
-              <h4 className="font-medium text-purple-900 mb-2">Premium Analytics</h4>
+              <h4 className="font-medium text-purple-900 mb-2">{strings.premiumAnalytics}</h4>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-purple-700">Similar Cases:</span>
+                  <span className="text-purple-700">{strings.similarCases}:</span>
                   <span className="ml-2 font-medium text-purple-900">23 found</span>
                 </div>
                 <div>
-                  <span className="text-purple-700">Avg. Processing Time:</span>
+                  <span className="text-purple-700">{strings.avgProcessingTime}:</span>
                   <span className="ml-2 font-medium text-purple-900">2.3 days</span>
                 </div>
                 <div>
-                  <span className="text-purple-700">Success Rate:</span>
+                  <span className="text-purple-700">{strings.successRate}:</span>
                   <span className="ml-2 font-medium text-purple-900">94%</span>
                 </div>
                 <div>
-                  <span className="text-purple-700">Risk Score:</span>
-                  <span className="ml-2 font-medium text-purple-900">Low</span>
+                  <span className="text-purple-700">{strings.riskScore}:</span>
+                  <span className="ml-2 font-medium text-purple-900">{strings.low}</span>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Metadata */}
           <div className="border-t pt-4">
             <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 mr-2" />
-                <span>Created: {new Date(report.created_at).toLocaleString()}</span>
+                <span>{strings.created}: {new Date(report.created_at).toLocaleString()}</span>
               </div>
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 mr-2" />
-                <span>Updated: {new Date(report.updated_at).toLocaleString()}</span>
+                <span>{strings.updated}: {new Date(report.updated_at).toLocaleString()}</span>
               </div>
             </div>
           </div>
