@@ -34,24 +34,12 @@ docker exec feature-flag-backend php artisan migrate:fresh --seed --force
 echo "Creating storage link..."
 docker exec feature-flag-backend php artisan storage:link
 
-echo "Setting up Nginx..."
-if command -v nginx &> /dev/null; then
-    sudo cp nginx.conf /etc/nginx/sites-available/feature-flag-service
-    sudo ln -sf /etc/nginx/sites-available/feature-flag-service /etc/nginx/sites-enabled/
-    sudo rm -f /etc/nginx/sites-enabled/default
-    sudo nginx -t && sudo systemctl restart nginx
-    echo "Nginx configured successfully"
-else
-    echo "Nginx not found. Install with: sudo apt install nginx"
-fi
-
 echo ""
 echo "Setup complete!"
 echo ""
 echo "Access the application:"
-echo "  App: http://localhost (port 80)"
-echo "  Direct Frontend: http://localhost:3000"
-echo "  Direct Backend: http://localhost:8000/api"
+echo "  Frontend: http://localhost:3000"
+echo "  Backend API: http://localhost:8000/api"
 echo ""
 echo "Login credentials:"
 echo "  Admin: admin@example.com / password"

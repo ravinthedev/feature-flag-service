@@ -2,8 +2,6 @@
 
 A car damage reporting system with feature flag management. Built with Laravel and Next.js.
 
-**Live Demo:** [http://44.249.12.142:3000](http://44.249.12.142:3000)
-
 This is a demo application showing how to implement feature flags. Users can submit car damage reports, and admins can toggle features on/off without deploying new code.
 
 ## Quick Start
@@ -23,9 +21,8 @@ chmod +x deploy-local.sh
 That's it. Everything will be set up and running.
 
 **Access:**
-- App: http://localhost (port 80)
-- Direct Frontend: http://localhost:3000
-- Direct Backend: http://localhost:8000/api
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8000/api
 
 **Login:**
 - Admin: `admin@example.com` / `password`
@@ -168,13 +165,6 @@ GET    /api/admin/feature-flags/{key}/analytics  # Usage stats
 ```
 
 ## Testing the System
-
-**Demo Link:**
-- Visit: [http://44.249.12.142:3000](http://44.249.12.142:3000)
-- Login with `admin@example.com` / `password` or `user@example.com` / `password`
-- Test feature flags and car reports
-
-**Or test locally:**
 
 **1. Login as admin:**
 - Go to http://localhost:3000/login

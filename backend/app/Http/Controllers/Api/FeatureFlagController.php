@@ -36,6 +36,13 @@ class FeatureFlagController extends Controller
         return FeatureFlagResource::collection($flags)->response();
     }
 
+    public function getActiveFlags(): JsonResponse
+    {
+        $flags = FeatureFlagModel::where('is_enabled', true)->get();
+        
+        return FeatureFlagResource::collection($flags)->response();
+    }
+
     public function show(string $key): JsonResponse
     {
         $flag = FeatureFlagModel::where('key', $key)->firstOrFail();
