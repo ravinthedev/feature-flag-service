@@ -2,28 +2,33 @@
 
 set -e
 
-echo "🚀 Setting up Feature Flag Service..."
+echo "Setting up Feature Flag Service..."
 echo ""
 
-echo "📄 Copying environment files..."
+echo "Copying environment files..."
 cp environments/local/backend.env backend/.env
 cp environments/local/frontend.env frontend/.env.local
 
-echo "🐳 Starting Docker services..."
+echo "Starting Docker services..."
 cd environments/local
 docker compose --env-file docker.env up -d
 
-echo "⏳ Waiting for services to be ready..."
+echo "Waiting for services to be ready..."
 sleep 10
 
-echo "🔧 Running backend setup..."
+echo "Running backend setup..."
 docker exec feature-flag-backend php artisan key:generate
-docker exec feature-flag-backend php artisan migrate --force
-docker exec feature-flag-backend php artisan db:seed --force
+
+sleep 5
+
+echo "Setting up database..."
+docker exec feature-flag-backend php artisan migrate:fresh --seed --force
+
+echo "Creating storage link..."
 docker exec feature-flag-backend php artisan storage:link
 
 echo ""
-echo "✅ Setup complete!"
+echo "Setup complete!"
 echo ""
 echo "Access the application:"
 echo "  Frontend: http://localhost:3000"
